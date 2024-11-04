@@ -14,7 +14,7 @@ function Fruit:__init(sweetness)
   self.sweetness = sweetness
 end
 
-local Colorful = class('colorful)
+local Colorful = class('colorful')
 
 function Colorful:__init(color)
   self.color = color
@@ -27,8 +27,25 @@ function Lemon:__init(color, sweetness)
   Colorful.__init(self, color)
 end
 
-local lemon = Lemon:new("blue", 10)
+local lemon = Lemon:new('blue', 10)
 ```
+
+## Quick Docs
+
+LowerClass
+- `LowerClass:new(name: str, ...: mixin|class) => Class` - Generates a new class with the given name. Remaining args are individually passed to Class:include()
+- `LowerClass(...)` - Wraps LowerClass:new()
+
+Class
+- `Class:new(...) => Instance` - Generates a new instance of a class, passing all args __init(...)
+- `Class(...)` - Wraps Class:new()
+- `Class:include(mixin|class)` - Either mixes in a table or adds the passed class as a parent of the calling class.
+- `Class:is(otherClass) => Boolean` - Checks if the calling class inherits (is a sub-child) of otherClass.
+- `Class.name` - name of the class
+
+Instance
+- `Instance:is(otherClass) => Boolean` Checks if instance inherits (is a sub-child) of otherClass.
+- `Instance.class` The instance's class.
 
 # Changes
 
@@ -40,10 +57,10 @@ MiddleClass's static functionallity was removed. I felt it was a bit unnecessary
 
 MiddleClass:
 ```lua
-local TestClass = class("Test")
+local TestClass = class('Test')
 
 TestClass.static.exampleStaticFunc()
-  print("This is a static function")
+  print('This is a static function')
 end
 
 TestClass.exampleStaticFunc()
@@ -51,10 +68,10 @@ TestClass.exampleStaticFunc()
 
 LowerClass:
 ```lua
-local TestClass = class("Test")
+local TestClass = class('Test')
 
 TestClass.exampleFunc()
-  print("This is an example function")
+  print('This is an example function')
 end
 
 TestClass.exampleFunc()
@@ -64,16 +81,16 @@ TestClass.exampleFunc()
 
 MiddleClass only supported having a single parent class. This was neat, but I really like having multi-class inheritance. 
 
-This however resulted in "super" being removed from the class. This was previously a reference to the active class' parent. Now, you should simply just directly reference the class.
+This however resulted in 'super' being removed from the class. This was previously a reference to the active class' parent. Now, you should simply just directly reference the class.
 
 MiddleClass:
 
 ```lua
-local ClassA = class("ClassA")
-local ClassB = class("ClassB", ClassA)
+local ClassA = class('ClassA')
+local ClassB = class('ClassB', ClassA)
 
 ClassB.static.exampleStaticFunc(self)
-  print("This is class " .. self.name .. ", my parent is " .. self.super.name .. ".")
+  print('This is class ' .. self.name .. ', my parent is ' .. self.super.name .. '.')
 end
 
 ClassB:exampleStaticFunc()
@@ -81,11 +98,11 @@ ClassB:exampleStaticFunc()
 
 LowerClass:
 ```lua
-local ClassA = class("ClassA")
-local ClassB = class("ClassB", ClassA)
+local ClassA = class('ClassA')
+local ClassB = class('ClassB', ClassA)
 
 ClassB.exampleFunc(self)
-  print("This is class " .. ClassB.name .. ", my parent is " .. ClassA.name .. ".")
+  print('This is class ' .. ClassB.name .. ', my parent is ' .. ClassA.name .. '.')
 end
 
 ClassB:exampleStaticFunc()
@@ -99,12 +116,12 @@ LowerClass:
 ```lua
 local testMixin = {
   fly = function(self)
-    print("Flapping like a bird")
+    print('Flapping like a bird')
   end
 }
 
-local ClassA = class("ClassA")
-local ClassB = class("ClassB")
+local ClassA = class('ClassA')
+local ClassB = class('ClassB')
 
 ClassB:include(ClassA) -- ClassA is now a parent of ClassB. ClassB will now inherit all functions added to ClassA.
 ClassA:include(testMixin) -- Added the fly function to ClassA, and by proxy ClassB.
@@ -116,8 +133,8 @@ MiddleClass offers the ability to check if an instance/class is a part of anothe
 
 MiddleClass:
 ```lua
-local ClassA = class("ClassA")
-local ClassB = class("ClassB", ClassA)
+local ClassA = class('ClassA')
+local ClassB = class('ClassB', ClassA)
 
 local objA = ClassA:new()
 local objB = ClassB:new()
@@ -134,8 +151,8 @@ print(ClassB:isSubclassOf(ClassA)) -- True
 
 LowerClass:
 ```lua
-local ClassA = class("ClassA")
-local ClassB = class("ClassB", ClassA)
+local ClassA = class('ClassA')
+local ClassB = class('ClassB', ClassA)
 
 local objA = ClassA:new()
 local objB = ClassB:new()
