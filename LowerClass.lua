@@ -10,10 +10,6 @@ local lowerclass_enableCallMetamethod = true
 --- Very reliable with EmmyLua annotations, but not as clean
 local lowerclass_enableNewMethod = true
 
---- If true, enables debug printing for lowerclass
----    Prints out all internal class data
-local lowerclass_debug = false
-
 --- If true, allows calling myClass() to create an instance of a class
 --- Cleaner, but very unreliable with EmmyLua annotations
 ---     If used, recommended to use the --[[@as <Class>]] annotation
@@ -38,38 +34,6 @@ local lowerclass = {}
 
 -- Weak tables for storing method data
 local classData = setmetatable({}, { __mode = "k" }) -- Stores class data
-
-if lowerclass_debug then
-    --- Prints out all internal class data
-    function lowerclass.debugPrint()
-        for class, data in pairs(classData) do
-            print()
-            print("Class: " .. tostring(class))
-
-            print("  Parents: ")
-            for _, parent in ipairs(data.heirarchyData.parents) do
-                print("    " .. tostring(parent))
-            end
-
-            print("  Children: ")
-            for _, child in ipairs(data.heirarchyData.children) do
-                print("    " .. tostring(child))
-            end
-
-            print("  Inherits: ")
-            for key, value in pairs(data.heirarchyData.inherits) do
-                print("    " .. tostring(key) .. " = " .. tostring(value))
-            end
-
-            print("  Defined Variables: ")
-            for key, value in pairs(data.definedVariables) do
-                print("    " .. tostring(key) .. " = " .. tostring(value))
-            end
-        end
-        print()
-    end
-end
-
 
 -- -------------------------------------------------------------------------- --
 --                         Class Variable Declaration                         --
@@ -239,7 +203,7 @@ local function __createClass(name, ...)
     }
     -- Setup new method if desired
     if (class_enableNewMethod) then
-        rawset(aClass, "new", __newInstance)
+        aClass.new = __newInstance
     end
 
     -- Generate internal class data
@@ -250,7 +214,6 @@ local function __createClass(name, ...)
         heirarchyData = {
             children = {},
             parents = {},
-            inherits = {},
         }
     }
 
