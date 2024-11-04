@@ -166,7 +166,10 @@ end
 --- @return T
 local function __newInstance(aClass, ...)
     local classDat = classData[aClass]
-    local instance = { class = aClass }
+    local instance = { 
+        class = aClass,
+        include = __addMixin,
+    }
 
     setmetatable(instance, classDat.lookupDict)
 
