@@ -102,8 +102,6 @@ end
 ---@param aClass Class
 ---@param parent Class
 local function __addParent(aClass, parent)
-    print("Adding parent " .. tostring(parent) .. " to " .. tostring(aClass))
-
     local dat = classData[aClass]
     local parentData = classData[parent]
 
@@ -173,7 +171,7 @@ local function __newInstance(aClass, ...)
 
     setmetatable(instance, classDat.lookupDict)
 
-    if type(instance.__init) == "function" then
+    if instance.__init then
         instance:__init(...)
     end
 
