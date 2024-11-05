@@ -162,9 +162,9 @@ local function __createClass(name, ...)
     local aClass = setmetatable({
         name = name,
         include = function(self, ...)
-            assert(type(mixin) == "table", "mixin must be a table")
             -- If mixin is not registered as a class, use addMixin, otherwise use addParent
             for _, mixin in ipairs({ ... }) do
+                assert(type(mixin) == "table", "mixin must be a table")
                 local func = classData[mixin] == nil and __addMixin or __addParent
                 func(self, mixin)
             end
@@ -175,15 +175,13 @@ local function __createClass(name, ...)
         __tostring = function()
             return "class(\"" .. name .. "\")"
         end,
-        __newindex = function(_, key, value)
-            __declareClassVariable(aClass, key, value)
-        end,
+        __newindex = __declareClassVariable,
         __call = __newInstance
     })
 
     -- Generate internal class data
 
-    classData[aClass] = setmetatable {
+    classData[aClass] = {
         definedVariables = {},
         lookupDict = lookupDict,
         heirarchyData = {
@@ -192,7 +190,7 @@ local function __createClass(name, ...)
         }
     }
 
-    -- Finalize setup by adding is method and all mixins
+    -- Finalize setup by adding `is` method and all mixins
     aClass.is = __is
     aClass:include(...)
 
