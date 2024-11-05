@@ -1,25 +1,4 @@
 -- -------------------------------------------------------------------------- --
---                                Customization                               --
--- -------------------------------------------------------------------------- --
-
---- If true, allows calling lowerclass() to create a new class
---- Cleaner, and can somewhat be reliable with EmmyLua annotations
-local lowerclass_enableCallMetamethod = true
-
---- If true, allows calling lowerclass:new() to create a new class
---- Very reliable with EmmyLua annotations, but not as clean
-local lowerclass_enableNewMethod = true
-
---- If true, allows calling myClass() to create an instance of a class
---- Cleaner, but very unreliable with EmmyLua annotations
----     If used, recommended to use the --[[@as <Class>]] annotation
-local class_enableCallMetamethod = true
-
---- If true, allows calling myClass:new() to create an instance of a class
---- Very reliable with EmmyLua annotations, but not as clean
-local class_enableNewMethod = true
-
--- -------------------------------------------------------------------------- --
 --                                 Class Setup                                --
 -- -------------------------------------------------------------------------- --
 
@@ -102,13 +81,10 @@ end
 ---@param aClass Class
 ---@param parent Class
 local function __addParent(aClass, parent)
-    local dat = classData[aClass]
-    local parentData = classData[parent]
+    table.insert(classData[aClass].heirarchyData.parents, parent)
+    table.insert(classData[parent].heirarchyData.children, aClass)
 
-    table.insert(dat.heirarchyData.parents, parent)
-    table.insert(parentData.heirarchyData.children, aClass)
-
-    for key, value in pairs(parentData.definedVariables) do
+    for key, value in pairs(classData[parent].definedVariables) do
         if not (key == "__index" and type(f) == "table") then
             __propegateClassVariable(aClass, key, value)
         end
@@ -121,9 +97,7 @@ end
 ---@return boolean
 local function __is(self, aClass)
     -- If instance, extract class
-    if self.class then
-        self = self.class
-    end
+    self = self.class or self
 
     if self == aClass then
         return true
@@ -163,13 +137,10 @@ end
 --- @param aClass T
 --- @return T
 local function __newInstance(aClass, ...)
-    local classDat = classData[aClass]
-    local instance = { 
+    local instance = setmetatable({
         class = aClass,
         include = __addMixin,
-    }
-
-    setmetatable(instance, classDat.lookupDict)
+    }, classData[aClass].lookupDict)
 
     if instance.__init then
         instance:__init(...)
@@ -188,28 +159,31 @@ local function __createClass(name, ...)
     -- Generate class object
 
     ---@class Class
-    local aClass = {
+    local aClass = setmetatable({
         name = name,
-        include = function(self, mixin)
-            if type(mixin) ~= "table" then
-                error("mixin must be a table")
-            end
-
-            if classData[mixin] == nil then
-                __addMixin(self, mixin)
-            else
-                __addParent(self, mixin)
+        include = function(self, ...)
+            assert(type(mixin) == "table", "mixin must be a table")
+            -- If mixin is not registered as a class, use addMixin, otherwise use addParent
+            for _, mixin in ipairs({ ... }) do
+                local func = classData[mixin] == nil and __addMixin or __addParent
+                func(self, mixin)
             end
         end,
-    }
-    -- Setup new method if desired
-    if (class_enableNewMethod) then
-        aClass.new = __newInstance
-    end
+        new = __newInstance,
+    }, {
+        __index = lookupDict,
+        __tostring = function()
+            return "class(\"" .. name .. "\")"
+        end,
+        __newindex = function(_, key, value)
+            __declareClassVariable(aClass, key, value)
+        end,
+        __call = __newInstance
+    })
 
     -- Generate internal class data
 
-    classData[aClass] = {
+    classData[aClass] = setmetatable {
         definedVariables = {},
         lookupDict = lookupDict,
         heirarchyData = {
@@ -218,31 +192,9 @@ local function __createClass(name, ...)
         }
     }
 
-    -- Set up metatable for class
-
-    local classMeta = {
-        __index = lookupDict,
-        __tostring = function()
-            return "class(\"" .. name .. "\")"
-        end,
-        __newindex = function(_, key, value)
-            __declareClassVariable(aClass, key, value)
-        end
-    }
-    -- Setup call metamethod if desired
-    if (class_enableCallMetamethod) then
-        classMeta.__call = __newInstance
-    end
-
-    setmetatable(aClass, classMeta)
-
-    -- add "is" method (Added here to ensure its propegated properly)
+    -- Finalize setup by adding is method and all mixins
     aClass.is = __is
-
-    -- Add all mixins
-    for _, parent in ipairs({ ... }) do
-        aClass:include(parent)
-    end
+    aClass:include(...)
 
     return aClass
 end
@@ -251,23 +203,16 @@ end
 --                              LowerClass Setup                              --
 -- -------------------------------------------------------------------------- --
 
---- Generate metatable for lowerclass
-local lowerclass_mt = {}
 ---@diagnostic disable-next-line: param-type-mismatch
-setmetatable(lowerclass, lowerclass_mt)
-
--- Setup call metamethod if desired
-if (lowerclass_enableCallMetamethod) then
-    lowerclass_mt.__call = function(self, name, ...)
+setmetatable(lowerclass, {
+    __call = function(self, name, ...)
         return __createClass(name, ...)
-    end
-end
+    end,
+})
 
--- Setup new method if desired
-if (lowerclass_enableNewMethod) then
-    lowerclass.new = function(self, name, ...)
-        return __createClass(name, ...)
-    end
+-- Setup new method
+lowerclass.new = function(self, name, ...)
+    return __createClass(name, ...)
 end
 
 return lowerclass
