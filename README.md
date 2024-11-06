@@ -174,3 +174,29 @@ MiddleClass stored all variables associated with a class inside the class. Lower
 This includes:
 - Class Heirarchy (parent/children)
 - Class Variables
+
+
+# Cool Stuff I've learnt to do with LowerClass
+
+Whilst I've programmed with it and tried to develop various mixins or functionallity,
+I've come across a few neat things I've learn I can do.
+
+## Builders
+
+The builder pattern is a pretty neat concept, and originally I tried making a rather
+convoluted mixin but quickly realized it was unneccessary, heres how to make it easily:
+
+```lua
+local MyBuilderClass = LowerClass("MyBuilderClass")
+
+function MyBuilderClass:position(x, y)
+  self.x = x
+  self.y = y
+  return self
+end
+
+local myObj = MyBuilderClass:new()
+  :position(5, 10)
+
+print(myObj.x, myObj.y) -- 5   10
+```

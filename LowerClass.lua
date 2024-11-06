@@ -97,6 +97,7 @@ end
 ---@return boolean
 local function __is(self, aClass)
     -- If instance, extract class
+    ---@diagnostic disable-next-line: undefined-field
     self = self.class or self
 
     if self == aClass then
