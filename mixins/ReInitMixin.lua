@@ -6,25 +6,25 @@ Builder pattern for classes.
 To Use:
 
 --- Set up the class that will be using ReInitMixin
-local BuildableClass = Class("BuildableClass", ReInitMixin)
+local BuildableClass = LowerClass("BuildableClass", ReInitMixin)
 function BuildableClass:__init(x, y)
     self.x = x
     self.y = y
 end
 
 --- Set up the class that will utilize the mixin class
-local MainClass = Class("MainClass")
+local MainClass = LowerClass("MainClass")
 function MainClass:__init()
     self.vector = BuildableClass:new(0, 0)
 end
 
 --- The powah:
 local myObj = MainClass:new()
-    :vector(3, 3)  -- Using the ReInit as a builder
-print(myObj.var.x, myObj.var.y) -- 3, 3
+    :vector(3, 3)           -- Using the ReInit as a builder
+print(myObj.vector.x, myObj.vector.y) -- 3, 3
 
 myObj:vector(5, 4)
-print(myObj.var.x, myObj.var.y) -- 5, 4
+print(myObj.vector.x, myObj.vector.y) -- 5, 4
 ]]
 
 
