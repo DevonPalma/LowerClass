@@ -139,6 +139,7 @@ end
 --- @return T
 local function __newInstance(aClass, ...)
     local instance = setmetatable({
+        __type = aClass.name,
         class = aClass,
         include = __addMixin,
     }, classData[aClass].lookupDict)
@@ -161,6 +162,7 @@ local function __createClass(name, ...)
 
     ---@class Class
     local aClass = setmetatable({
+        __type = "class",
         name = name,
         include = function(self, ...)
             -- If mixin is not registered as a class, use addMixin, otherwise use addParent
@@ -215,6 +217,10 @@ setmetatable(lowerclass, {
 -- Setup new method
 lowerclass.new = function(self, name, ...)
     return __createClass(name, ...)
+end
+
+lowerclass.type = function(obj)
+    return type(obj) == "table" and obj.__type or type(obj)
 end
 
 return lowerclass
