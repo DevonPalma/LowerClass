@@ -27,11 +27,11 @@ local function __createIndexWrapper(aClass, var)
         return classData[aClass].lookupDict[name]
     elseif type(var) == "function" then
         return function(self, name)
-            return classData[aClass].lookupDict[name] or var(self, name)
+            return var(self, name) or classData[aClass].lookupDict[name]
         end
     else -- if  type(f) == "table" then
         return function(self, name)
-            return classData[aClass].lookupDict[name] or var[name]
+            return var[name] or classData[aClass].lookupDict[name]
         end
     end
 end
