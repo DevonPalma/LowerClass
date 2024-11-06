@@ -200,3 +200,30 @@ local myObj = MyBuilderClass:new()
 
 print(myObj.x, myObj.y) -- 5   10
 ```
+
+I found in some scopes this wasn't satisfactory enough, as this only works
+once per instance. For a more complex system I developed the ReInitMixin which allows 
+setting up specific classes that can act as a "buildable" part of a surrounding class
+
+```lua
+--- Set up the class that will be using ReInitMixin
+local BuildableClass = Class("BuildableClass", ReInitMixin)
+function BuildableClass:__init(x, y)
+    self.x = x
+    self.y = y
+end
+
+--- Set up the class that will utilize the mixin class
+local MainClass = Class("MainClass")
+function MainClass:__init()
+    self.vector = BuildableClass:new(0, 0)
+end
+
+--- The powah:
+local myObj = MainClass:new()
+    :vector(3, 3)  -- Using the ReInit as a builder
+print(myObj.var.x, myObj.var.y) -- 3, 3
+
+myObj:vector(5, 4)
+print(myObj.var.x, myObj.var.y) -- 5, 4
+```
