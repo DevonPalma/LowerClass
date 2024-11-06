@@ -219,8 +219,9 @@ lowerclass.new = function(self, name, ...)
     return __createClass(name, ...)
 end
 
+local __type = type
 lowerclass.type = function(obj)
-    return type(obj) == "table" and obj.__type or type(obj)
+    return __type(obj) == "table" and obj.__type or __type(obj)
 end
 
 return lowerclass
