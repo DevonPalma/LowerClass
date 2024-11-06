@@ -1,41 +1,39 @@
 local a = {}
 local b = setmetatable({}, { __mode = "k" })
-local function c(aClass, d) if d == nil then return b[aClass].lookupDict[name] elseif type(d) == "function" then return function(
-            self, name) return b[aClass].lookupDict[name] or d(self, name) end else return function(self, name) return b
-            [aClass].lookupDict[name] or d[name] end end end; local function e(aClass, name, d)
-    d = name == "__index" and c(aClass, d) or d; b[aClass].lookupDict[name] = d; for g, h in ipairs(b[aClass].heirarchyData.children) do if b[h].definedVariables[name] == nil then
-            e(h, name, d) end end
-end; local function i(aClass, name, d)
-    local j = b[aClass]
-    j.definedVariables[name] = d; if d == nil then for g, k in ipairs(j.heirarchyData.parents) do if k[name] ~= nil then
-                d = k; break
-            end end end; e(aClass, name, d)
-end; local function l(aClass, k)
-    table.insert(b[aClass].heirarchyData.parents, k)
-    table.insert(b[k].heirarchyData.children, aClass)
-    for m, n in pairs(b[k].definedVariables) do if not (m == "__index" and type(f) == "table") then e(aClass, m, n) end end
-end; local function o(self, aClass)
-    self = self.class or self; if self == aClass then return true end; local j = b[self]
-    for g, k in ipairs(j.heirarchyData.parents) do if o(k, aClass) then return true end end; return false
-end; local function p(aClass, mixin)
-    for name, q in pairs(mixin) do if name ~= "included" then aClass[name] = q end end; if type(mixin.included) == "function" then
-        mixin:included(aClass) end
-end; local function r(aClass, ...)
-    local s = setmetatable({ class = aClass, include = p }, b[aClass].lookupDict)
-    if s.__init then s:__init(...) end; return s
-end; local function t(name, ...)
-    local u = {}
-    u.__index = u; local aClass = setmetatable(
-    { name = name, include = function(self, ...)
-        assert(type(mixin) == "table", "mixin must be a table")
-        for g, mixin in ipairs({ ... }) do
-            local v = b[mixin] == nil and p or l; v(self, mixin)
-        end
-    end, new = r },
-        { __index = u, __tostring = function() return "class(\"" .. name .. "\")" end, __newindex = function(g, m, n) i(
-            aClass, m, n) end, __call = r })
-    b[aClass] = setmetatable { definedVariables = {}, lookupDict = u, heirarchyData = { children = {}, parents = {} } }
-    aClass.is = o; aClass:include(...)
-    return aClass
-end; setmetatable(a, { __call = function(self, name, ...) return t(name, ...) end })
-a.new = function(self, name, ...) return t(name, ...) end; return a
+local function c(d, e) if e == nil then return b[d].lookupDict[name] elseif type(e) == "function" then return function(
+            self, name) return e(self, name) or b[d].lookupDict[name] end else return function(self, name) return e
+            [name] or b[d].lookupDict[name] end end end; local function g(d, name, e)
+    e = name == "__index" and c(d, e) or e; b[d].lookupDict[name] = e; for h, i in ipairs(b[d].heirarchyData.children) do if b[i].definedVariables[name] == nil then
+            g(i, name, e) end end
+end; local function j(d, name, e)
+    local k = b[d]
+    k.definedVariables[name] = e; if e == nil then for h, l in ipairs(k.heirarchyData.parents) do if l[name] ~= nil then
+                e = l; break
+            end end end; g(d, name, e)
+end; local function m(d, l)
+    table.insert(b[d].heirarchyData.parents, l)
+    table.insert(b[l].heirarchyData.children, d)
+    for n, o in pairs(b[l].definedVariables) do if not (n == "__index" and type(f) == "table") then g(d, n, o) end end
+end; local function p(self, d)
+    self = self.class or self; if self == d then return true end; local k = b[self]
+    for h, l in ipairs(k.heirarchyData.parents) do if p(l, d) then return true end end; return false
+end; local function q(d, r)
+    for name, s in pairs(r) do if name ~= "included" then d[name] = s end end; if type(r.included) == "function" then r
+            :included(d) end
+end; local function t(d, ...)
+    local u = setmetatable({ __type = d.name, class = d, include = q }, b[d].lookupDict)
+    if u.__init then u:__init(...) end; return u
+end; local function v(name, ...)
+    local w = {}
+    w.__index = w; local d = setmetatable(
+    { __type = "class", name = name, include = function(self, ...) for h, r in ipairs({ ... }) do
+            if type(r) == "function" then r = r(self) end; assert(type(r) == "table", "mixin must be a table")
+            local x = b[r] == nil and q or m; x(self, r)
+        end end, new = t }, { __index = w, __tostring = function() return "class(\"" .. name .. "\")" end, __newindex = j, __call =
+    t })
+    b[d] = { definedVariables = {}, lookupDict = w, heirarchyData = { children = {}, parents = {} } }
+    d.is = p; d:include(...)
+    return d
+end; setmetatable(a, { __call = function(self, name, ...) return v(name, ...) end })
+a.new = function(self, name, ...) return v(name, ...) end; local y = type; a.type = function(z) return y(z) == "table" and
+    z.__type or y(z) end; return a
