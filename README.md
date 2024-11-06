@@ -34,16 +34,16 @@ local lemon = Lemon:new('blue', 10)
 ## Quick Docs
 
 LowerClass
-- `LowerClass:new(name: str, ...: mixin|class) => Class` - Generates a new class with the given name. Remaining args are individually passed to Class:include()
-- `LowerClass(...)` - Wraps LowerClass:new()
+- `LowerClass(name: str, ...: mixin|class) => Class` - Generates a new class.
+- `LowerClass.type(obj: any) => string` - Returns the type of a passed object (Defaults to lua's type() if a non-class/instance type is passed)
 
 Class
-- `Class:new(...) => Instance` - Generates a new instance of a class, passing all args __init(...)
-- `Class(...)` - Wraps Class:new()
-- `Class:include(mixin|class)` - Either mixes in a table or adds the passed class as a parent of the calling class.
-- `Class:is(otherClass) => Boolean` - Checks if the calling class inherits (is a sub-child) of otherClass.
 - `Class.name` - name of the class
+- `Class:new(...) => Instance` - Generates a new instance of a class, passing all args __init(...)
+- `Class:is(otherClass) => Boolean` - Checks if the calling class inherits (is a sub-child) of otherClass.
+- `Class:include(...: mixin|class)` - Either mixes in a table or adds the passed class as a parent of the calling class.
 
 Instance
+- `Instance.class` Pointer to the instance's class
 - `Instance:is(otherClass) => Boolean` Checks if instance inherits (is a sub-child) of otherClass.
-- `Instance.class` The instance's class.
+- `Instance:include(...: mixin)` - Copies all functions from a mixin directyly to the calling instance.
