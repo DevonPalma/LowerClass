@@ -165,6 +165,9 @@ local function __createClass(name, ...)
         include = function(self, ...)
             -- If mixin is not registered as a class, use addMixin, otherwise use addParent
             for _, mixin in ipairs({ ... }) do
+                if type(mixin) == "function" then
+                    mixin = mixin(self)
+                end
                 assert(type(mixin) == "table", "mixin must be a table")
                 local func = classData[mixin] == nil and __addMixin or __addParent
                 func(self, mixin)
