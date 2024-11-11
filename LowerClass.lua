@@ -219,6 +219,10 @@ lowerclass.new = function(self, name, ...)
     return __createClass(name, ...)
 end
 
+lowerclass.is = function(obj, aClass)
+	return type(obj) == "table" and type(obj.is) == "function" and obj:is(aClass)
+end
+
 local __type = type
 lowerclass.type = function(obj)
     return __type(obj) == "table" and obj.__type or __type(obj)
