@@ -1,6 +1,6 @@
 local a = {}
 local b = setmetatable({}, { __mode = "k" })
-local function c(d, e) if e == nil then return b[d].lookupDict[name] elseif type(e) == "function" then return function(
+local function c(d, e) if e == nil then return b[d].lookupDict elseif type(e) == "function" then return function(
             self, name) return e(self, name) or b[d].lookupDict[name] end else return function(self, name) return e
             [name] or b[d].lookupDict[name] end end end; local function g(d, name, e)
     e = name == "__index" and c(d, e) or e; b[d].lookupDict[name] = e; for h, i in ipairs(b[d].heirarchyData.children) do if b[i].definedVariables[name] == nil then
@@ -13,7 +13,7 @@ end; local function j(d, name, e)
 end; local function m(d, l)
     table.insert(b[d].heirarchyData.parents, l)
     table.insert(b[l].heirarchyData.children, d)
-    for n, o in pairs(b[l].definedVariables) do if not (n == "__index" and type(f) == "table") then g(d, n, o) end end
+    for n, o in pairs(b[l].definedVariables) do if not (n == "__index" and type(o) == "table") then g(d, n, o) end end
 end; local function p(self, d)
     self = self.class or self; if self == d then return true end; local k = b[self]
     for h, l in ipairs(k.heirarchyData.parents) do if p(l, d) then return true end end; return false

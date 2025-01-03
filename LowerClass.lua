@@ -24,7 +24,7 @@ local classData = setmetatable({}, { __mode = "k" }) -- Stores class data
 --- @return table|function
 local function __createIndexWrapper(aClass, var)
     if var == nil then
-        return classData[aClass].lookupDict[name]
+        return classData[aClass].lookupDict
     elseif type(var) == "function" then
         return function(self, name)
             return var(self, name) or classData[aClass].lookupDict[name]
@@ -85,7 +85,7 @@ local function __addParent(aClass, parent)
     table.insert(classData[parent].heirarchyData.children, aClass)
 
     for key, value in pairs(classData[parent].definedVariables) do
-        if not (key == "__index" and type(f) == "table") then
+        if not (key == "__index" and type(value) == "table") then
             __propegateClassVariable(aClass, key, value)
         end
     end
